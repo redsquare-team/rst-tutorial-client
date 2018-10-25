@@ -30,8 +30,8 @@ export class Guestbook extends React.Component {
             var date=time.toLocaleDateString();
             var hour=time.toLocaleTimeString();
             return (
-                <div>
-                    {v.author} ({date+" "+hour}) : {v.message}
+                <div className="pt-2">
+                    <b>{v.author} ({date+" "+hour})</b> : {v.message}
                 </div>
             )
         });
@@ -101,7 +101,7 @@ export class Guestbook extends React.Component {
                     </Col>
                 </Row>
                 <Row className="p-4">
-                    <Col className="text-center p-4 border rounded"
+                    <Col className="p-4 border rounded"
                     style={
                         {
                             minHeight: "300px"
