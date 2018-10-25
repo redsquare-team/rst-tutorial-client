@@ -24,14 +24,31 @@ export class Guestbook extends React.Component {
      *  CUSTOM HANDLERS
      */
 
+    printMessages() {
+        return this.state.chat.map(function(v) {
+            var time=new Date(v.time);
+            var date=time.toLocaleDateString();
+            var hour=time.toLocaleTimeString();
+            return (
+                <div>
+                    {v.author} ({date+" "+hour}) : {v.message}
+                </div>
+            )
+        });
+    }
+
     handleSendMessage() {
         fetch('http://127.0.0.1:60000/guestbook/send-message', {
-            method: 'post',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: {
+            body: JSON.stringify({
                 "author": this.state.author,
                 "message": this.state.message
-            }
+            })
+        })
+        .then(res => res.json())
+        .then((data) => {
+            this.setState({chat: data});
         })
 
         this.setState({ message: "" });
@@ -49,7 +66,20 @@ export class Guestbook extends React.Component {
      * REACT API
      */
     componentDidMount() {
-        
+
+        var interval=() => {
+            fetch("http://127.0.0.1:60000/guestbook/read-messages")
+            .then(resp => resp.json()) // Transform the data into json
+            .then((data) => {
+                this.setState({chat: data});
+            });
+        }
+
+        interval();
+
+        setInterval(() => {
+            interval.call(this);
+        }, 1000);
     }
 
 
@@ -70,16 +100,14 @@ export class Guestbook extends React.Component {
                         </div>
                     </Col>
                 </Row>
-                <Row>
-                    Sto per inviare... {this.state.message}
-                </Row>
                 <Row className="p-4">
-                    <Col className="text-center p-4 border rounded" style={
+                    <Col className="text-center p-4 border rounded"
+                    style={
                         {
                             minHeight: "300px"
                         }
                     }>
-                        Loading...
+                        {this.state.chat.length > 0 ? this.printMessages() : "Loading..."}
                     </Col>
                 </Row>
             </Container>
